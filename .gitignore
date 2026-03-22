@@ -1,0 +1,30 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.idea
+
+### IntelliJ IDEA ###
+*.iws
+*.iml
+*.ipr
+*.log
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+${sys:catalina.base}/
+rebel.xml
+rebel-remote.xml
+.mvn/maven.config
+logs/
