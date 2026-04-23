@@ -56,4 +56,78 @@ public class Solution215 {
             makeBigNode(nums, max, end);
         }
     }
+
+    /**
+     * 快排，使用从小到大排序，应先找right再找left，否则会多很多没必要的判断
+     * 若要找第k大元素，可以根据基准数字的位置来寻找单向区间，最终即可找到第k大
+     * @param nums
+     * @param start
+     * @param end
+     * @return
+     */
+    public int[] quickSort(int[] nums, int start, int end) {
+        int left = start + 1, right = end;
+        if (start >= end) {
+            return nums;
+        }
+        int base = nums[start];
+        // 选择基准数，小的放左边，大的放右边。双指针swap
+        while (left < right) {
+            if (nums[left] < base) {
+                left++;
+                continue;
+            }
+            while (nums[right] >= base) {
+                right--;
+                if (right<=left) {
+                    break;
+                }
+            }
+            if (right<=left) {
+                break;
+            }
+            int tmp = nums[left];
+            nums[left] = nums[right];
+            nums[right] = tmp;
+            left++;
+            right--;
+        }
+        while (right > start && nums[right] >= base) {
+            right--;
+        }
+        nums[start] = nums[right];
+        nums[right] = base;
+        quickSort(nums, start, right-1);
+        quickSort(nums, right + 1, end);
+        return nums;
+    }
+
+    /**
+     *
+     * @param nums
+     * @param k
+     * @return
+     */
+    public int findKthLargestByBucket(int[] nums, int k) {
+        // 寻找最大值确定桶长度
+        int min =Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+        for (int num : nums) {
+            max = Math.max(num, max);
+            min = Math.min(num, min);
+        }
+        int[] buckets = new int[max - min + 1];
+        for (int num : nums) {
+            buckets[num - min]++;
+        }
+        // 寻找第k大元素
+        int count = 0;
+        for (int i = buckets.length -1; i >= 0; i--) {
+            count += buckets[i];
+            if (count >= k) {
+                return i + min;
+            }
+        }
+        return -1;
+    }
 }
