@@ -7,12 +7,12 @@ public class DfsStartLinkMatcher {
     public static void main(String[] args) {
         DfsStartLinkMatcher matcher = new DfsStartLinkMatcher();
 
-        matcher.addPattern(String.class, new String[] {"A", "B", "C"}, "0,11");
-        matcher.addPattern(String.class, new String[] {"A", "B"}, "99");
-        matcher.addPattern(String.class, new String[] {"A", "B", "D"}, "1");
-        matcher.addPattern(String.class, new String[] {"B", "D"}, "2");
-        matcher.addPattern(String.class, new String[] {"B", "D","F"}, "F");
-        matcher.addPattern(String.class, new String[] {"B", "F"}, "3");
+        matcher.addPattern(String.class, new String[]{"A", "B", "C"}, "0,11");
+        matcher.addPattern(String.class, new String[]{"A", "B"}, "99");
+        matcher.addPattern(String.class, new String[]{"A", "B", "D"}, "1");
+        matcher.addPattern(String.class, new String[]{"B", "D"}, "2");
+        matcher.addPattern(String.class, new String[]{"B", "D", "F"}, "F");
+        matcher.addPattern(String.class, new String[]{"B", "F"}, "3");
 
         matcher.buildFailPointer(String.class);
 
@@ -20,7 +20,7 @@ public class DfsStartLinkMatcher {
         System.out.println(matcher.findByStartLink(String.class, "B"));
 // 输出 [0, 1]
 
-        System.out.println(matcher.match(String.class, new String[] {"A", "B", "D"}));
+        System.out.println(matcher.match(String.class, new String[]{"A", "B", "D"}));
 // 输出 [1]
     }
 
@@ -47,29 +47,19 @@ public class DfsStartLinkMatcher {
 
     /**
      * 添加一条 link 序列。
-     *
+     * <p>
      * 例如：
      * A-B-C -> 0
      * A-B-D -> 1
      */
-    public void addPattern(
-            Class<?> dataClass,
-            String[] linkIds,
-            String dataIndex
-    ) {
+    public void addPattern(Class<?> dataClass, String[] linkIds, String dataIndex) {
         if (linkIds == null || linkIds.length == 0) {
             return;
         }
 
-        Map<String, TrieNode> rootNextMap = macherMap.computeIfAbsent(
-                dataClass,
-                k -> new HashMap<>()
-        );
+        Map<String, TrieNode> rootNextMap = macherMap.computeIfAbsent(dataClass, k -> new HashMap<>());
 
-        TrieNode current = rootNextMap.computeIfAbsent(
-                linkIds[0],
-                TrieNode::new
-        );
+        TrieNode current = rootNextMap.computeIfAbsent(linkIds[0], TrieNode::new);
 
         for (int i = 1; i < linkIds.length; i++) {
             current = getOrCreateNextNode(current, linkIds[i]);
@@ -80,7 +70,7 @@ public class DfsStartLinkMatcher {
 
     /**
      * 构建 fail 指针。
-     *
+     * <p>
      * 注意：这里不把 fail 节点的 index 合并到当前节点。
      * 这样可以保证 DFS 起点查询时不会收集到后缀模式的 index。
      */
@@ -135,17 +125,14 @@ public class DfsStartLinkMatcher {
     /**
      * 方法 1：
      * 根据某个 link 查询所有以它为起点的属性索引。
-     *
+     * <p>
      * 例如：
      * 已有 A-B-C -> 0
      * 已有 A-B-D -> 1
-     *
+     * <p>
      * 传入 A，返回 [0, 1]
      */
-    public List<String> findByStartLink(
-            Class<?> dataClass,
-            String startLinkId
-    ) {
+    public List<String> findByStartLink(Class<?> dataClass, String startLinkId) {
         Map<String, TrieNode> rootNextMap = macherMap.get(dataClass);
 
         if (rootNextMap == null) {
@@ -168,17 +155,14 @@ public class DfsStartLinkMatcher {
     /**
      * 方法 2：
      * 传入一段 link 数组，查询路径上匹配到的属性索引。
-     *
+     * <p>
      * 例如：
      * 已有 A-B-C -> 0
      * 已有 A-B-D -> 1
-     *
+     * <p>
      * 传入 A-B-D，返回 [1]
      */
-    public List<String> match(
-            Class<?> dataClass,
-            String[] linkIds
-    ) {
+    public List<String> match(Class<?> dataClass, String[] linkIds) {
         if (linkIds == null || linkIds.length == 0) {
             return Collections.emptyList();
         }
@@ -214,10 +198,7 @@ public class DfsStartLinkMatcher {
         return new ArrayList<>(result);
     }
 
-    private void collectSubTreeIndexes(
-            TrieNode node,
-            Set<String> result
-    ) {
+    private void collectSubTreeIndexes(TrieNode node, Set<String> result) {
         if (node == null) {
             return;
         }
@@ -233,10 +214,7 @@ public class DfsStartLinkMatcher {
         }
     }
 
-    private void collectCurrentAndFailIndexes(
-            TrieNode node,
-            Set<String> result
-    ) {
+    private void collectCurrentAndFailIndexes(TrieNode node, Set<String> result) {
         TrieNode current = node;
 
         while (current != null) {
@@ -245,10 +223,7 @@ public class DfsStartLinkMatcher {
         }
     }
 
-    private TrieNode getOrCreateNextNode(
-            TrieNode node,
-            String linkId
-    ) {
+    private TrieNode getOrCreateNextNode(TrieNode node, String linkId) {
         TrieNode nextNode = getNextNode(node, linkId);
 
         if (nextNode != null) {
@@ -258,7 +233,7 @@ public class DfsStartLinkMatcher {
         TrieNode newNode = new TrieNode(linkId);
 
         if (node.nextNodes == null) {
-            node.nextNodes = new TrieNode[] { newNode };
+            node.nextNodes = new TrieNode[]{newNode};
             return newNode;
         }
 
@@ -270,10 +245,7 @@ public class DfsStartLinkMatcher {
         return newNode;
     }
 
-    private TrieNode getNextNode(
-            TrieNode node,
-            String linkId
-    ) {
+    private TrieNode getNextNode(TrieNode node, String linkId) {
         if (node == null || node.nextNodes == null) {
             return null;
         }
@@ -287,10 +259,7 @@ public class DfsStartLinkMatcher {
         return null;
     }
 
-    private String appendIndex(
-            String oldIndex,
-            String newIndex
-    ) {
+    private String appendIndex(String oldIndex, String newIndex) {
         if (oldIndex == null || oldIndex.isEmpty()) {
             return newIndex;
         }
@@ -298,10 +267,7 @@ public class DfsStartLinkMatcher {
         return oldIndex + "," + newIndex;
     }
 
-    private void addIndexToResult(
-            String index,
-            Set<String> result
-    ) {
+    private void addIndexToResult(String index, Set<String> result) {
         if (index == null || index.isEmpty()) {
             return;
         }

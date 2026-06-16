@@ -5,43 +5,19 @@ import java.util.*;
 public class VectorLinkMatcher {
     public static void main(String[] args) {
         VectorLinkMatcher matcher = new VectorLinkMatcher();
-        matcher.addPattern(
-                String.class,
-                new String[] {"A", "B", "C"},
-                "0"
-        );
-        matcher.addPattern(
-                String.class,
-                new String[] {"B", "C"},
-                "99"
-        );
-        matcher.addPattern(
-                String.class,
-                new String[] {"B", "C", "E"},
-                "21"
-        );
+        matcher.addPattern(String.class, new String[]{"A", "B", "C"}, "0");
+        matcher.addPattern(String.class, new String[]{"B", "C"}, "99");
+        matcher.addPattern(String.class, new String[]{"B", "C", "E"}, "21");
 
-        matcher.addPattern(
-                String.class,
-                new String[] {"A", "B", "D"},
-                "1"
-        );
-        matcher.addPattern(
-                String.class,
-                new String[] {"A", "B"},
-                "2"
-        );
+        matcher.addPattern(String.class, new String[]{"A", "B", "D"}, "1");
+        matcher.addPattern(String.class, new String[]{"A", "B"}, "2");
 
         matcher.build(String.class);
 
-        System.out.println(
-                matcher.findByStartLink(String.class, "A")
-        );
+        System.out.println(matcher.findByStartLink(String.class, "A"));
         // 输出 [0, 1]
 
-        System.out.println(
-                matcher.match(String.class, new String[] {"A", "B", "C"})
-        );
+        System.out.println(matcher.match(String.class, new String[]{"A", "B", "C"}));
         // 输出 [1]
     }
 
@@ -51,19 +27,12 @@ public class VectorLinkMatcher {
      */
     private final Map<Class<?>, VectorIndex> matcherMap = new HashMap<>();
 
-    public void addPattern(
-            Class<?> dataClass,
-            String[] linkIds,
-            String dataIndex
-    ) {
+    public void addPattern(Class<?> dataClass, String[] linkIds, String dataIndex) {
         if (linkIds == null || linkIds.length == 0) {
             return;
         }
 
-        VectorIndex index = matcherMap.computeIfAbsent(
-                dataClass,
-                k -> new VectorIndex()
-        );
+        VectorIndex index = matcherMap.computeIfAbsent(dataClass, k -> new VectorIndex());
 
         index.addPattern(linkIds, dataIndex);
     }
@@ -79,17 +48,14 @@ public class VectorLinkMatcher {
     /**
      * 方法 1：
      * 传入一个 linkId，查询所有以它为起点的属性索引。
-     *
+     * <p>
      * 例如：
      * A-B-C -> 0
      * A-B-D -> 1
-     *
+     * <p>
      * 传入 A，返回 [0, 1]
      */
-    public List<String> findByStartLink(
-            Class<?> dataClass,
-            String startLinkId
-    ) {
+    public List<String> findByStartLink(Class<?> dataClass, String startLinkId) {
         VectorIndex index = matcherMap.get(dataClass);
 
         if (index == null) {
@@ -102,17 +68,14 @@ public class VectorLinkMatcher {
     /**
      * 方法 2：
      * 传入 linkId 数组，查询路径范围内匹配上的属性索引。
-     *
+     * <p>
      * 例如：
      * A-B-C -> 0
      * A-B-D -> 1
-     *
+     * <p>
      * 传入 A-B-D，只返回 [1]
      */
-    public List<String> match(
-            Class<?> dataClass,
-            String[] queryLinks
-    ) {
+    public List<String> match(Class<?> dataClass, String[] queryLinks) {
         VectorIndex index = matcherMap.get(dataClass);
 
         if (index == null) {
@@ -134,18 +97,12 @@ public class VectorLinkMatcher {
 
         private boolean built = false;
 
-        public void addPattern(
-                String[] linkIds,
-                String dataIndex
-        ) {
+        public void addPattern(String[] linkIds, String dataIndex) {
             if (linkIds == null || linkIds.length == 0) {
                 return;
             }
 
-            PathRecord record = new PathRecord(
-                    Arrays.copyOf(linkIds, linkIds.length),
-                    dataIndex
-            );
+            PathRecord record = new PathRecord(Arrays.copyOf(linkIds, linkIds.length), dataIndex);
 
             records.add(record);
 
@@ -189,14 +146,14 @@ public class VectorLinkMatcher {
 
         /**
          * 查询一段 link 数组里命中的属性索引。
-         *
+         * <p>
          * 这个方法会在 queryLinks 的每一个位置尝试匹配：
-         *
+         * <p>
          * queryLinks = A-B-D
-         *
+         * <p>
          * start=0, link=A:
-         *   候选：A-B-C, A-B-D
-         *   比较后只有 A-B-D 命中
+         * 候选：A-B-C, A-B-D
+         * 比较后只有 A-B-D 命中
          */
         public List<String> match(String[] queryLinks) {
             if (queryLinks == null || queryLinks.length == 0 || records.isEmpty()) {
@@ -229,11 +186,7 @@ public class VectorLinkMatcher {
             return new ArrayList<>(result);
         }
 
-        private boolean matchesAt(
-                String[] patternLinks,
-                String[] queryLinks,
-                int start
-        ) {
+        private boolean matchesAt(String[] patternLinks, String[] queryLinks, int start) {
             if (start + patternLinks.length > queryLinks.length) {
                 return false;
             }
@@ -297,10 +250,7 @@ public class VectorLinkMatcher {
             return left;
         }
 
-        private void addIndexToResult(
-                String index,
-                Set<String> result
-        ) {
+        private void addIndexToResult(String index, Set<String> result) {
             if (index == null || index.isEmpty()) {
                 return;
             }
@@ -334,10 +284,7 @@ public class VectorLinkMatcher {
          */
         private final String dataIndex;
 
-        public PathRecord(
-                String[] linkIds,
-                String dataIndex
-        ) {
+        public PathRecord(String[] linkIds, String dataIndex) {
             this.linkIds = linkIds;
             this.startLink = linkIds[0];
             this.dataIndex = dataIndex;

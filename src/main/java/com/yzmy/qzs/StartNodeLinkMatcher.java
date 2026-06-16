@@ -6,12 +6,12 @@ public class StartNodeLinkMatcher {
     public static void main(String[] args) {
         StartNodeLinkMatcher matcher = new StartNodeLinkMatcher();
 
-        matcher.addPattern(String.class, new String[] {"A", "B", "C"}, "0,11");
-        matcher.addPattern(String.class, new String[] {"A", "B"}, "99");
-        matcher.addPattern(String.class, new String[] {"A", "B", "D"}, "1");
-        matcher.addPattern(String.class, new String[] {"B", "D"}, "2");
-        matcher.addPattern(String.class, new String[] {"B", "D","F"}, "F");
-        matcher.addPattern(String.class, new String[] {"B", "F"}, "3");
+        matcher.addPattern(String.class, new String[]{"A", "B", "C"}, "0,11");
+        matcher.addPattern(String.class, new String[]{"A", "B"}, "99");
+        matcher.addPattern(String.class, new String[]{"A", "B", "D"}, "1");
+        matcher.addPattern(String.class, new String[]{"B", "D"}, "2");
+        matcher.addPattern(String.class, new String[]{"B", "D", "F"}, "F");
+        matcher.addPattern(String.class, new String[]{"B", "F"}, "3");
 
         matcher.buildFailPointer(String.class);
 
@@ -19,7 +19,7 @@ public class StartNodeLinkMatcher {
         System.out.println(matcher.findByStartLink(String.class, "B"));
 // 输出 [0, 1]
 
-        System.out.println(matcher.match(String.class, new String[] {"A", "B", "D"}));
+        System.out.println(matcher.match(String.class, new String[]{"A", "B", "D"}));
 // 输出 [1]
     }
 
@@ -51,11 +51,11 @@ public class StartNodeLinkMatcher {
 
         /**
          * 所有以当前 link 为起点的属性索引。
-         *
+         * <p>
          * 例如：
          * A-B-C -> 0
          * A-B-D -> 1
-         *
+         * <p>
          * 那么 A.startIndex = "0,1"
          */
         private String startIndex;
@@ -68,24 +68,14 @@ public class StartNodeLinkMatcher {
     /**
      * 添加一条 link 序列。
      */
-    public void addPattern(
-            Class<?> dataClass,
-            String[] linkIds,
-            String dataIndex
-    ) {
+    public void addPattern(Class<?> dataClass, String[] linkIds, String dataIndex) {
         if (linkIds == null || linkIds.length == 0) {
             return;
         }
 
-        Map<String, TrieNode> rootNextMap = macherMap.computeIfAbsent(
-                dataClass,
-                k -> new HashMap<>()
-        );
+        Map<String, TrieNode> rootNextMap = macherMap.computeIfAbsent(dataClass, k -> new HashMap<>());
 
-        TrieNode current = rootNextMap.computeIfAbsent(
-                linkIds[0],
-                StartTrieNode::new
-        );
+        TrieNode current = rootNextMap.computeIfAbsent(linkIds[0], StartTrieNode::new);
 
         StartTrieNode startNode = (StartTrieNode) current;
 
@@ -102,7 +92,7 @@ public class StartNodeLinkMatcher {
 
     /**
      * 构建 fail 指针。
-     *
+     * <p>
      * 注意：这里同样不把 fail 节点的 index 合并到当前节点。
      */
     public void buildFailPointer(Class<?> dataClass) {
@@ -156,17 +146,14 @@ public class StartNodeLinkMatcher {
     /**
      * 方法 1：
      * 根据某个 link 查询所有以它为起点的属性索引。
-     *
+     * <p>
      * 例如：
      * A-B-C -> 0
      * A-B-D -> 1
-     *
+     * <p>
      * 传入 A，返回 [0, 1]
      */
-    public List<String> findByStartLink(
-            Class<?> dataClass,
-            String startLinkId
-    ) {
+    public List<String> findByStartLink(Class<?> dataClass, String startLinkId) {
         Map<String, TrieNode> rootNextMap = macherMap.get(dataClass);
 
         if (rootNextMap == null) {
@@ -188,17 +175,14 @@ public class StartNodeLinkMatcher {
     /**
      * 方法 2：
      * 传入一段 link 数组，查询路径上匹配到的属性索引。
-     *
+     * <p>
      * 例如：
      * A-B-C -> 0
      * A-B-D -> 1
-     *
+     * <p>
      * 传入 A-B-D，返回 [1]
      */
-    public List<String> match(
-            Class<?> dataClass,
-            String[] linkIds
-    ) {
+    public List<String> match(Class<?> dataClass, String[] linkIds) {
         if (linkIds == null || linkIds.length == 0) {
             return Collections.emptyList();
         }
@@ -234,10 +218,7 @@ public class StartNodeLinkMatcher {
         return new ArrayList<>(result);
     }
 
-    private void collectCurrentAndFailIndexes(
-            TrieNode node,
-            Set<String> result
-    ) {
+    private void collectCurrentAndFailIndexes(TrieNode node, Set<String> result) {
         TrieNode current = node;
 
         while (current != null) {
@@ -246,10 +227,7 @@ public class StartNodeLinkMatcher {
         }
     }
 
-    private TrieNode getOrCreateNextNode(
-            TrieNode node,
-            String linkId
-    ) {
+    private TrieNode getOrCreateNextNode(TrieNode node, String linkId) {
         TrieNode nextNode = getNextNode(node, linkId);
 
         if (nextNode != null) {
@@ -259,7 +237,7 @@ public class StartNodeLinkMatcher {
         TrieNode newNode = new TrieNode(linkId);
 
         if (node.nextNodes == null) {
-            node.nextNodes = new TrieNode[] { newNode };
+            node.nextNodes = new TrieNode[]{newNode};
             return newNode;
         }
 
@@ -271,10 +249,7 @@ public class StartNodeLinkMatcher {
         return newNode;
     }
 
-    private TrieNode getNextNode(
-            TrieNode node,
-            String linkId
-    ) {
+    private TrieNode getNextNode(TrieNode node, String linkId) {
         if (node == null || node.nextNodes == null) {
             return null;
         }
@@ -288,10 +263,7 @@ public class StartNodeLinkMatcher {
         return null;
     }
 
-    private String appendIndex(
-            String oldIndex,
-            String newIndex
-    ) {
+    private String appendIndex(String oldIndex, String newIndex) {
         if (oldIndex == null || oldIndex.isEmpty()) {
             return newIndex;
         }
@@ -299,10 +271,7 @@ public class StartNodeLinkMatcher {
         return oldIndex + "," + newIndex;
     }
 
-    private void addIndexToResult(
-            String index,
-            Set<String> result
-    ) {
+    private void addIndexToResult(String index, Set<String> result) {
         if (index == null || index.isEmpty()) {
             return;
         }
